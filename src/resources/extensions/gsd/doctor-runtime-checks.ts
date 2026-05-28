@@ -747,7 +747,7 @@ export async function checkRuntimeHealth(
         if (existsSync(mPath)) continue;
         issues.push({
           severity: "warning",
-          code: "orphan_milestone_dir",
+          code: "db_orphan_milestone",
           scope: "milestone",
           unitId: milestone.id,
           message: `Milestone ${milestone.id} exists in DB but its milestone directory is missing on disk (${mPath}). This stale DB state can cause incorrect milestone continuation behavior.`,

@@ -17,6 +17,7 @@ import {
   resolveMilestonePath,
   resolveMilestoneFile,
   buildMilestoneFileName,
+  milestonesDir,
 } from "./paths.js";
 import { invalidateAllCaches } from "./cache.js";
 import { loadQueueOrder, saveQueueOrder } from "./queue-order.js";
@@ -132,9 +133,10 @@ export function unparkMilestone(basePath: string, milestoneId: string): boolean 
  */
 export function discardMilestone(basePath: string, milestoneId: string): boolean {
   assertNotAutoActive("discard milestone");
-  const mDir = resolveMilestonePath(basePath, milestoneId);
-  if (!mDir) return false;
+  const mDir = resolveMilestonePath(basePath, milestoneId) ?? join(milestonesDir(basePath), milestoneId);
   const hasMilestoneDir = existsSync(mDir);
+  const dbAvailable = isDbAvailable();
+  const hasDbMilestone = dbAvailable ? getMilestone(milestoneId) !== null : false;
   let dbCleanupSucceeded = false;
 
   try {
@@ -156,10 +158,10 @@ export function discardMilestone(basePath: string, milestoneId: string): boolean
     saveQueueOrder(basePath, order.filter(id => id !== milestoneId));
   }
 
-  if (isDbAvailable()) {
+  if (dbAvailable) {
     try {
       deleteMilestone(milestoneId);
-      dbCleanupSucceeded = true;
+      dbCleanupSucceeded = hasDbMilestone;
     } catch (err) {
       logWarning("engine", `discardMilestone DB cleanup failed for ${milestoneId}: ${(err as Error).message}`);
     }

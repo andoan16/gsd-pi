@@ -108,7 +108,7 @@ describe("gsd_doctor orphan milestone directory check (#4996)", () => {
     const fixes: string[] = [];
     await checkRuntimeHealth(base, issues, fixes, () => false);
 
-    const orphan = issues.find(i => i.code === "orphan_milestone_dir" && i.unitId === "M004");
+    const orphan = issues.find(i => i.code === "db_orphan_milestone" && i.unitId === "M004");
     assert.ok(orphan, "DB-present/filesystem-missing milestone should be reported");
     assert.equal(orphan?.severity, "warning");
     assert.equal(orphan?.fixable, false);

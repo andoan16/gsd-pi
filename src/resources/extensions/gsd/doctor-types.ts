@@ -86,8 +86,9 @@ export type DoctorIssueCode =
   | "db_duplicate_id"
   | "db_unavailable"
   | "projection_drift"
-  // Milestone filesystem/DB drift (#4996)
-  | "orphan_milestone_dir";
+  // Milestone filesystem/DB drift (#4996, #202)
+  | "orphan_milestone_dir"
+  | "db_orphan_milestone";
 
 /**
  * Issue codes that represent global or completion-critical state.
