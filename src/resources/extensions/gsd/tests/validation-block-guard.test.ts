@@ -103,6 +103,12 @@ test("validation block rejects workflow-start and advancing commands", () => {
     "parallel merge",
     "dispatch complete",
     "dispatch uat",
+    "research-milestone",
+    "research-slice",
+    "plan-milestone",
+    "plan-slice",
+    "execute-task",
+    "complete-slice",
     "complete-milestone",
     "ship",
   ];

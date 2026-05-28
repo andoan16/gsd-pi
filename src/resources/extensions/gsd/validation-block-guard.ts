@@ -23,6 +23,12 @@ const VALIDATION_BLOCKED_COMMANDS = new Set([
   "next",
   "start",
   "ship",
+  "research-milestone",
+  "research-slice",
+  "plan-milestone",
+  "plan-slice",
+  "execute-task",
+  "complete-slice",
   "complete-milestone",
   "do",
 ]);
