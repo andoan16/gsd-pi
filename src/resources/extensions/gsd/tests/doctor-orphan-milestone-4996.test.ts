@@ -113,4 +113,19 @@ describe("gsd_doctor orphan milestone directory check (#4996)", () => {
     assert.equal(orphan?.severity, "warning");
     assert.equal(orphan?.fixable, false);
   });
+
+  it("(f) DB milestone with legacy descriptor directory is NOT reported missing", async () => {
+    base = makeBase();
+    mkdirSync(join(base, ".gsd", "milestones", "M001-FEATURE-NAME"), { recursive: true });
+    const dbPath = join(base, ".gsd", "gsd.db");
+    openDatabase(dbPath);
+    insertMilestone({ id: "M001", status: "active" });
+
+    const issues: DoctorIssue[] = [];
+    const fixes: string[] = [];
+    await checkRuntimeHealth(base, issues, fixes, () => false);
+
+    const orphan = issues.find(i => i.code === "db_orphaned_milestone_dir" && i.unitId === "M001");
+    assert.equal(orphan, undefined, "legacy descriptor milestone dir must satisfy DB row path check");
+  });
 });

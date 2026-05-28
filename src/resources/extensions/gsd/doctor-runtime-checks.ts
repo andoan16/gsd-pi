@@ -3,7 +3,7 @@ import { basename, dirname, join } from "node:path";
 
 import type { DoctorIssue, DoctorIssueCode } from "./doctor-types.js";
 import { cleanNumberedGsdVariants } from "./repo-identity.js";
-import { milestonesDir, gsdRoot, resolveGsdRootFile } from "./paths.js";
+import { milestonesDir, gsdRoot, resolveGsdRootFile, resolveMilestonePath } from "./paths.js";
 import { deriveState, isGhostMilestone, isReusableGhostMilestone } from "./state.js";
 import { saveFile } from "./files.js";
 import { nativeIsRepo, nativeForEachRef, nativeUpdateRef } from "./native-git-bridge.js";
@@ -752,8 +752,7 @@ export async function checkRuntimeHealth(
           .map((row) => String((row as { id: unknown }).id));
 
         for (const mid of dbMilestoneIds) {
-          const milestonePath = join(milestonesDir(basePath), mid);
-          if (existsSync(milestonePath)) continue;
+          if (resolveMilestonePath(basePath, mid)) continue;
           issues.push({
             severity: "warning",
             code: "db_orphaned_milestone_dir",
