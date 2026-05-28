@@ -15,6 +15,7 @@ import {
   closeDatabase,
   insertMilestone,
 } from "../gsd-db.ts";
+import { reconcileProjectMilestonesFromDisk } from "../auto-start.ts";
 import { invalidateAllCaches } from "../cache.ts";
 import type { DoctorIssue, DoctorIssueCode } from "../doctor-types.ts";
 
@@ -111,5 +112,31 @@ describe("gsd_doctor orphan milestone directory check (#4996)", () => {
     const orphan = issues.find(i => i.code === "orphan_milestone_dir" && i.unitId === "M004");
     assert.ok(orphan, "DB milestone without directory should be reported");
     assert.ok(orphan?.message.includes("exists in DB"), "message should describe DB-only milestone");
+  });
+
+  it("(f) PROJECT-reconciled milestones without directories are NOT reported", async () => {
+    base = makeBase();
+    writeFileSync(
+      join(base, ".gsd", "PROJECT.md"),
+      `# Project
+
+## Milestone Sequence
+- [x] M005: Completed from project - Already done
+- [ ] M006: Queued from project - Planned future work
+`,
+      "utf-8",
+    );
+    const dbPath = join(base, ".gsd", "gsd.db");
+    openDatabase(dbPath);
+    assert.equal(reconcileProjectMilestonesFromDisk(base), 2);
+
+    const issues: DoctorIssue[] = [];
+    const fixes: string[] = [];
+    await checkRuntimeHealth(base, issues, fixes, () => false);
+
+    const orphanIds = issues
+      .filter(i => i.code === "orphan_milestone_dir")
+      .map(i => i.unitId);
+    assert.deepEqual(orphanIds, [], "PROJECT-only queued/complete milestones must not be reported as orphans");
   });
 });

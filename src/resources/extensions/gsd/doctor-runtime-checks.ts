@@ -17,6 +17,7 @@ import { splitCompletedKey } from "./forensics.js";
 import { findMilestoneIds } from "./milestone-ids.js";
 import { loadEffectiveGSDPreferences } from "./preferences.js";
 import { getAllMilestones, isDbAvailable } from "./gsd-db.js";
+import { isClosedStatus, isFutureMilestoneStatus } from "./status-guards.js";
 
 const MAX_UAT_ATTEMPTS = 3;
 
@@ -742,6 +743,7 @@ export async function checkRuntimeHealth(
     if (isDbAvailable()) {
       for (const row of getAllMilestones()) {
         if (milestoneIdSet.has(row.id)) continue;
+        if (isFutureMilestoneStatus(row.status) || isClosedStatus(row.status)) continue;
         issues.push({
           severity: "warning",
           code: "orphan_milestone_dir",

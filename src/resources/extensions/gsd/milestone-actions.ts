@@ -134,6 +134,8 @@ export function discardMilestone(basePath: string, milestoneId: string): boolean
   assertNotAutoActive("discard milestone");
   const mDir = resolveMilestonePath(basePath, milestoneId);
   const hasMilestoneDir = !!mDir && existsSync(mDir);
+  const dbAvailable = isDbAvailable();
+  const hasDbMilestone = dbAvailable && getMilestone(milestoneId) !== null;
 
   try {
     removeWorktree(basePath, milestoneId, {
@@ -154,7 +156,7 @@ export function discardMilestone(basePath: string, milestoneId: string): boolean
     saveQueueOrder(basePath, order.filter(id => id !== milestoneId));
   }
 
-  if (isDbAvailable()) {
+  if (dbAvailable) {
     try {
       deleteMilestone(milestoneId);
     } catch (err) {
@@ -163,7 +165,7 @@ export function discardMilestone(basePath: string, milestoneId: string): boolean
   }
 
   invalidateAllCaches();
-  return hasMilestoneDir || isDbAvailable();
+  return hasMilestoneDir || hasDbMilestone;
 }
 
 // ─── Query ─────────────────────────────────────────────────────────────────
